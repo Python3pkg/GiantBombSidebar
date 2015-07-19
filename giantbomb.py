@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup, SoupStrainer
 from prawoauth2 import PrawOAuth2Mini
 from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent
 
+VERSION = '1.0.0'
+
 def get_html():
 	opener = urllib2.build_opener()
 	opener.addheaders = [('User-agent', 'Mozilla/5.0')]
@@ -29,7 +31,8 @@ def create_table(html):
 	return table
 
 def set_sidebar(table):
-	r = praw.Reddit(user_agent = user_agent)
+	user_agent_version = user_agent.replace('*', VERSION)
+	r = praw.Reddit(user_agent = user_agent_version)
 	o = PrawOAuth2Mini(r, app_key = app_key, app_secret = app_secret, access_token = access_token, scopes = ['identity', 'modconfig'], refresh_token = refresh_token)
 	o.refresh()
 	settings = r.get_settings(subreddit)

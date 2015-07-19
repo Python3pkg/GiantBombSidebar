@@ -6,13 +6,12 @@ print 'https://www.reddit.com/prefs/apps/'
 print 'Make sure you set it as a script and have the redirect uri be:'
 print 'http://127.0.0.1:65010/authorize_callback\n'
 
-version = '1.0'
-
 app_key_input = raw_input('Please enter your app key: ')
 app_secret_input = raw_input('Please enter your app secret: ')
+app_name_input = raw_input('Please enter the name you used for the app: ')
 subreddit_input = raw_input('Please enter your subreddit: ')
 username_input = raw_input('Please enter your username (for the user-agent): ')
-user_agent = 'python:GiantBombSidebar:' + version + ' (by /u/' + username_input + ')'
+user_agent = 'python:' + app_name_input + ':* (by /u/' + username_input + ')'
 print 'Your web browser will now open, please accept the agreement'
 
 r = praw.Reddit(user_agent = user_agent)
