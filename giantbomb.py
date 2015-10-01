@@ -1,6 +1,8 @@
 import praw, urllib2
 from bs4 import BeautifulSoup, SoupStrainer
 from prawoauth2 import PrawOAuth2Mini
+from pytz import timezone
+from datetime import datetime
 from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent
 
 VERSION = '1.0.0'
@@ -17,12 +19,16 @@ def create_table(html):
 	soup = BeautifulSoup(html, parse_only = product)
 	table = '[](#calendar_start)\n'
 	table += '>###Calendar\n'
-	table += 'Title | Time\n'
+	table += 'Title | Time (PST)\n'
 	table += ':-- |:--\n'
 	for time in soup.findAll('dd'):
 		title = time.div.h4.string
 		showType = ''.join(time.div.p.strings).split('on', 1)[0].strip()
 		showTime = ''.join(time.div.p.strings).split('on', 1)[1].strip()
+		showTime = datetime.strptime(showTime, '%b %d, %Y %I:%M %p')
+		showTime = timezone('US/Eastern').localize(showTime)
+		showTime = showTime.astimezone(timezone('US/Pacific'))
+		showTime = datetime.strftime(showTime, '%b %d, %Y %I:%M %p')
 		if(showType.startswith('Premium')):
 			table += '**' + title + '** | **' +  showTime + '**\n'
 		else:
