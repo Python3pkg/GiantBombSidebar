@@ -16,7 +16,7 @@ def get_html():
 
 def create_table(html):
 	product = SoupStrainer('dl', {'class': 'promo-upcoming'})
-	soup = BeautifulSoup(html, parse_only = product)
+	soup = BeautifulSoup(html, "lxml", parse_only = product)
 	table = '[](#calendar_start)\n'
 	table += '>###Calendar\n'
 	table += 'Title | Time (PST)\n'
