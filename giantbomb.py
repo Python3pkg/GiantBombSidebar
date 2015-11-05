@@ -33,7 +33,7 @@ def create_table(html):
 			table += '**' + title + '** | **' +  showTime + '**\n'
 		else:
 			table += title + ' | ' +  showTime + ' | ' + '\n'
-	table += '[](#calendar_end)'
+	table += '\n[](#calendar_end)\n'
 	return table
 
 def set_sidebar(table):
