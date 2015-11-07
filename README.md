@@ -16,14 +16,23 @@ A simple Python script to get the upcoming Giant Bomb schedule and post it to th
     python onetime.py
     ```
 
-5. In the sidebar, place the following where you want the calendar to appear.
+5. In the sidebar, place the following where you want the calendar to appear (with a new line after calender_end).
 
     ```
     [](#calendar_start)
     [](#calendar_end)
     ```
 
-6. You can now run the file.
+6. Where you want the header to appear place the following.
+
+    ```
+    [](#live_start)
+    [](#live_end)
+    ```
+
+7. Take the CSS from header.css and place it into the subreddit stylesheet.
+
+8. You can now run the file.
 
     ```
     python giantbomb.py

@@ -1,0 +1,19 @@
+/*** LIVE HEADER ITEM ***/
+
+.side .md h6 {
+    position: absolute;
+    top: 75px;
+    right: 40px;
+    background: #2e2e2e;
+    border: 1px solid #2e2e2e;
+    border-radius: 5px;
+    padding: 3px 5px;
+    z-index: 100;
+}
+
+.side .md h6 a {
+    color: #ffffff;
+    font-family: sans-serif;
+}
+
+/*** END LIVE HEADER ITEM ***/
