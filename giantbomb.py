@@ -21,6 +21,7 @@ def create_table(html):
 	table += '>###Calendar\n'
 	table += 'Title | Time (PST)\n'
 	table += ':-- |:--\n'
+	time = None
 	for time in soup.findAll('dd'):
 		title = time.div.h4.string
 		showType = ''.join(time.div.p.strings).split('on', 1)[0].strip()
@@ -33,6 +34,9 @@ def create_table(html):
 			table += '**' + title + '** | **' +  showTime + '**\n'
 		else:
 			table += title + ' | ' +  showTime + ' | ' + '\n'
+	if time == None:
+		table = '[](#calendar_start)\n'
+		table += '>###Calendar\n'
 	table += '\n[](#calendar_end)'
 	return table
 
@@ -46,7 +50,8 @@ def create_header(html):
 		header += '######[LIVE: ' + title + '](http://www.giantbomb.com/chat/)\n'
 		header += '[](#live_end)'
 	else:
-		header = False
+		header = '[](#live_start)\n'
+		header += '[](#live_end)'
 	return header
 
 def set_sidebar(table, header):
@@ -59,10 +64,9 @@ def set_sidebar(table, header):
 	start = sidebar_contents.split('[](#calendar_start)', 1)[0] 
 	end = sidebar_contents.split('[](#calendar_end)', 1)[1]
 	new_sidebar = start + table + end
-	if(header != False):
-		start = new_sidebar.split('[](#live_start)', 1)[0] 
-		end = new_sidebar.split('[](#live_end)', 1)[1]
-		new_sidebar = start + header + end
+	start = new_sidebar.split('[](#live_start)', 1)[0] 
+	end = new_sidebar.split('[](#live_end)', 1)[1]
+	new_sidebar = start + header + end
 	r.update_settings(r.get_subreddit(subreddit), description = new_sidebar)
 
 def main():
