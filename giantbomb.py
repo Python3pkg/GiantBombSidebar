@@ -32,7 +32,7 @@ def get_credentials():
 def setup_calendar():
 	credentials = get_credentials()
 	http = credentials.authorize(httplib2.Http())
-	service = discovery.build('calendar', 'v3', http=http)
+	service = discovery.build('calendar', 'v3', http = http)
 	return service
 
 def add_to_calendar(title, time, premium):
@@ -43,14 +43,14 @@ def add_to_calendar(title, time, premium):
     title = title.replace('\'','')
 
     eventsResult = service.events().list(
-        calendarId=calendar_id,
-        q=title).execute()
+        calendarId = calendar_id,
+        q = title).execute()
     events = eventsResult.get('items', [])
 
     if not events:
     	start = datetime.strptime(time, '%b %d, %Y %I:%M %p')
     	start = timezone('US/Pacific').localize(start)
-    	end = (start + timedelta(hours=1)).isoformat()
+    	end = (start + timedelta(hours = 1)).isoformat()
     	start = start.isoformat()
         event = {
           'summary': title,
@@ -64,7 +64,7 @@ def add_to_calendar(title, time, premium):
           },
         }
 
-        event = service.events().insert(calendarId=calendar_id, body=event).execute()
+        event = service.events().insert(calendarId = calendar_id, body = event).execute()
 
 def clear_old_entries():
     service = setup_calendar()
@@ -73,18 +73,18 @@ def clear_old_entries():
     yesterday = (timezone('US/Eastern').localize(yesterday)).isoformat()
 
     eventsResult = service.events().list(
-        calendarId=calendar_id,
-        singleEvents='True',
-        orderBy='startTime',
-        timeMax=yesterday).execute()
+        calendarId = calendar_id,
+        singleEvents = 'True',
+        orderBy = 'startTime',
+        timeMax = yesterday).execute()
     events = eventsResult.get('items', [])
     for event in events:
-        service.events().delete(calendarId=calendar_id, eventId=event['id']).execute()
+        service.events().delete(calendarId = calendar_id, eventId = event['id']).execute()
 
-def get_html():
+def get_html(url):
 	opener = urllib2.build_opener()
 	opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-	response = opener.open('http://www.giantbomb.com')
+	response = opener.open(url)
 	html = response.read()
 	return html
 
@@ -105,7 +105,6 @@ def create_table(html):
 		showTime = showTime.astimezone(timezone('US/Pacific'))
 		displayTime = datetime.strftime(showTime, '%b %d, %Y %I:%M %p')
 		wolframTime = datetime.strftime(showTime, '%b+%d+%Y+%I:%M+%p')
-		showTime = '[' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)'
 		if(showType.startswith('Premium')):
 			table += '**' + title + '** | **[' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)**\n'
 			add_to_calendar(title, displayTime, True)
@@ -118,17 +117,29 @@ def create_table(html):
 	table += '\n[](#calendar_end)'
 	return table
 
+def check_live():
+	html = get_html('http://www.giantbomb.com/chat')
+	product = SoupStrainer('h2', {'class': 'header-border'})
+	soup = BeautifulSoup(html, 'html.parser', parse_only = product)
+	show = True
+	for text in soup:
+		if soup.string.strip() == 'There is currently no show.':
+			show = False
+	return show
+
 def create_header(html):
 	product = SoupStrainer('div', {'class': 'header-promotion__wrapper'})
 	soup = BeautifulSoup(html, 'html.parser', parse_only = product)
 	live = soup.span.time.text
 	if 'Live' in live:
-		if hasattr(soup.span.p.a, 'string'):
-			title = soup.span.p.a.string
-		elif hasattr(soup.span.p, 'string'):
-			title = soup.span.p.string
-		else:
-			pass
+		check = check_live()
+		if check == True:
+			if hasattr(soup.span.p.a, 'string'):
+				title = soup.span.p.a.string
+			elif hasattr(soup.span.p, 'string'):
+				title = soup.span.p.string
+			else:
+				pass
 		title = title.strip()
 		header = '[](#live_start)\n'
 		header += '######[LIVE: ' + title + '](http://www.giantbomb.com/chat/)\n'
@@ -154,7 +165,7 @@ def set_sidebar(table, header):
 	r.update_settings(r.get_subreddit(subreddit), description = new_sidebar)
 
 def main():
-	html = get_html()
+	html = get_html('http://www.giantbomb.com')
 	table = create_table(html)
 	header = create_header(html)
 	set_sidebar(table, header)
