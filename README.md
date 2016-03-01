@@ -1,5 +1,5 @@
 # GiantBombSidebar
-A simple Python script to get the upcoming Giant Bomb schedule and post it to the sidebar of reddit.com/r/GiantBomb.  Also indicates in the header if a show is live.  This script was designed for Python 2.7.x.
+A simple Python script to get the upcoming Giant Bomb schedule and post it to the sidebar of reddit.com/r/GiantBomb.  Also indicates in the header if a show is live and can sync the calendar with Google Calendar.  This script was designed for Python 2.7.x.
 
 # Setup
 1. First run this to install the dependencies.
@@ -37,6 +37,8 @@ A simple Python script to get the upcoming Giant Bomb schedule and post it to th
     ```
     python giantbomb.py
     ```
+
+9. Depending on your setup either use a cron, Windows Task Scheduler, or similar utilities to have this run every few minutes.
 
 # License
 This script is licensed under the MIT license which is included.
