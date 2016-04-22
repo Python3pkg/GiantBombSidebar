@@ -1,85 +1,11 @@
-import praw, urllib2, httplib2, os, oauth2client, argparse
+import praw, urllib2
 from bs4 import BeautifulSoup, SoupStrainer
 from prawoauth2 import PrawOAuth2Mini
 from pytz import timezone
-from datetime import datetime, timedelta
-from apiclient import discovery
-from oauth2client import client
-from oauth2client import tools
-from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent, calendar_id
+from datetime import datetime
+from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent
 
-flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
-
-VERSION = '2.0.0'
-
-
-def get_credentials():
-    home_dir = os.getcwd()
-    credential_dir = os.path.join(home_dir, '.credentials')
-    if not os.path.exists(credential_dir):
-        os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir, 'giantbombcalendar.json')
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets('client_secret.json', 'https://www.googleapis.com/auth/calendar')
-        flow.user_agent = 'GiantBombCalendar'
-        if flags:
-            credentials = tools.run_flow(flow, store, flags)
-        print('Storing credentials to ' + credential_path)
-    return credentials
-
-def setup_calendar():
-	credentials = get_credentials()
-	http = credentials.authorize(httplib2.Http())
-	service = discovery.build('calendar', 'v3', http = http)
-	return service
-
-def add_to_calendar(title, time, premium):
-    service = setup_calendar()
-
-    if premium == True:
-    		title = title + ' (Premium)'
-    title = title.replace('\'','')
-
-    eventsResult = service.events().list(
-        calendarId = calendar_id,
-        q = title).execute()
-    events = eventsResult.get('items', [])
-
-    if not events:
-    	start = datetime.strptime(time, '%b %d, %Y %I:%M %p')
-    	start = timezone('US/Pacific').localize(start)
-    	end = (start + timedelta(hours = 1)).isoformat()
-    	start = start.isoformat()
-        event = {
-          'summary': title,
-          'start': {
-            'dateTime': start,
-            'timeZone': 'America/Los_Angeles',
-          },
-          'end': {
-            'dateTime': end,
-            'timeZone': 'America/Los_Angeles',
-          },
-        }
-
-        event = service.events().insert(calendarId = calendar_id, body = event).execute()
-
-def clear_old_entries():
-    service = setup_calendar()
-
-    yesterday = datetime.now() - timedelta(1)
-    yesterday = (timezone('US/Eastern').localize(yesterday)).isoformat()
-
-    eventsResult = service.events().list(
-        calendarId = calendar_id,
-        singleEvents = 'True',
-        orderBy = 'startTime',
-        timeMax = yesterday).execute()
-    events = eventsResult.get('items', [])
-    for event in events:
-        service.events().delete(calendarId = calendar_id, eventId = event['id']).execute()
+VERSION = '3.0.0'
 
 def get_html(url):
 	opener = urllib2.build_opener()
@@ -107,10 +33,8 @@ def create_table(html):
 		wolframTime = datetime.strftime(showTime, '%b+%d+%Y+%I:%M+%p')
 		if(showType.startswith('Premium')):
 			table += '**' + title + '** | **[' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)**\n'
-			add_to_calendar(title, displayTime, True)
 		else:
 			table += title + ' | [' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)\n'
-			add_to_calendar(title, displayTime, False)
 	if time == None:
 		table = '[](#calendar_start)\n'
 		table += '>###Calendar\n'
@@ -169,7 +93,6 @@ def main():
 	table = create_table(html)
 	header = create_header(html)
 	set_sidebar(table, header)
-	clear_old_entries()
 
 if __name__ == '__main__':
     main()

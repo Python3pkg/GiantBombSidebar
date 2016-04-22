@@ -19,12 +19,6 @@ o = PrawOAuth2Server(r, app_key = app_key_input, app_secret = app_secret_input, 
 o.start()
 tokens = o.get_access_codes()
 
-print '\nPlease follow the instructions at:'
-print 'https://developers.google.com/google-apps/calendar/quickstart/python'
-print 'Once setup, put the client_secret.json in the folder with this project'
-print 'In Google Calendar, create a new calendar (set as public if you want to share)\n'
-calendar_id = raw_input('Please enter the calendar id or the word primary to use your default: ')
-
 settings = open('settings.py', 'w+')
 settings.write('app_key = \'' + app_key_input + '\'')
 settings.write('\napp_secret = \'' + app_secret_input + '\'')
@@ -32,7 +26,6 @@ settings.write('\naccess_token = \'' + tokens['access_token'] + '\'')
 settings.write('\nrefresh_token = \''  + tokens['refresh_token'] + '\'')
 settings.write('\nsubreddit = \'' + subreddit_input + '\'')
 settings.write('\nuser_agent = \'' + user_agent + '\'')
-settings.write('\ncalendar_id = \'' + calendar_id + '\'')
 settings.close()
 
 print '\nSetup complete, you can now run giantbomb.py'
