@@ -1,76 +1,37 @@
-import praw, urllib2
-from bs4 import BeautifulSoup, SoupStrainer
+import praw, urllib2, json
 from prawoauth2 import PrawOAuth2Mini
-from pytz import timezone
-from datetime import datetime
 from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent
 
 VERSION = '3.0.0'
 
-def get_html(url):
+def get_json():
 	opener = urllib2.build_opener()
-	opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-	response = opener.open(url)
-	html = response.read()
-	return html
+	opener.addheaders = [('User-agent', 'Reddit Sidebar')]
+	response = opener.open('http://www.giantbomb.com/upcoming_json')
+	data = json.load(response)
+	return data
 
-def create_table(html):
-	product = SoupStrainer('dl', {'class': 'promo-upcoming'})
-	soup = BeautifulSoup(html, 'html.parser', parse_only = product)
+def create_table(data):
 	table = '[](#calendar_start)\n'
-	table += '>###Calendar\n'
-	table += 'Title | Time (PST)\n'
-	table += ':-- |:--\n'
-	time = None
-	for time in soup.findAll('dd'):
-		title = time.div.h4.string
-		showType = ''.join(time.div.p.strings).split('on', 1)[0].strip()
-		showTime = ''.join(time.div.p.strings).split('on', 1)[1].strip()
-		showTime = datetime.strptime(showTime, '%b %d, %Y %I:%M %p')
-		showTime = timezone('US/Eastern').localize(showTime)
-		showTime = showTime.astimezone(timezone('US/Pacific'))
-		displayTime = datetime.strftime(showTime, '%b %d, %Y %I:%M %p')
-		wolframTime = datetime.strftime(showTime, '%b+%d+%Y+%I:%M+%p')
-		if(showType.startswith('Premium')):
-			table += '**' + title + '** | **[' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)**\n'
-		else:
-			table += title + ' | [' + displayTime + '](http://www.wolframalpha.com/input/?i=' + wolframTime + '+PST)\n'
-	if time == None:
-		table = '[](#calendar_start)\n'
+	if data['upcoming'] != None:
 		table += '>###Calendar\n'
+		table += 'Title | Time (PST)\n'
+		table += ':-- |:--\n'
+		for item in data['upcoming']:
+			title = item['title']
+			time = item['date']
+			if(item['premium'] == True):
+				table += '**' + title + '** | **[' + time + '](http://www.wolframalpha.com/input/?i=' + time + '+PST)**\n'
+			else:
+				table += title + ' | [' + time + '](http://www.wolframalpha.com/input/?i=' + time + '+PST)\n'
 	table += '\n[](#calendar_end)'
 	return table
 
-def check_live():
-	html = get_html('http://www.giantbomb.com/chat')
-	product = SoupStrainer('h2', {'class': 'header-border'})
-	soup = BeautifulSoup(html, 'html.parser', parse_only = product)
-	show = True
-	for text in soup:
-		if soup.string.strip() == 'There is currently no show.':
-			show = False
-	return show
-
-def create_header(html):
-	product = SoupStrainer('div', {'class': 'header-promotion__wrapper'})
-	soup = BeautifulSoup(html, 'html.parser', parse_only = product)
-	live = soup.span.time.text
-	if 'Live' in live:
-		check = check_live()
-		if check == True:
-			if hasattr(soup.span.p.a, 'string'):
-				title = soup.span.p.a.string
-			elif hasattr(soup.span.p, 'string'):
-				title = soup.span.p.string
-			else:
-				pass
-		title = title.strip()
-		header = '[](#live_start)\n'
-		header += '######[LIVE: ' + title + '](http://www.giantbomb.com/chat/)\n'
-		header += '[](#live_end)'
-	else:
-		header = '[](#live_start)\n'
-		header += '[](#live_end)'
+def create_header(data):
+	header = '[](#live_start)\n'
+	if data['liveNow'] != None:
+		header += '######[LIVE: ' + data['liveNow']['title'] + '](http://www.giantbomb.com/chat/)\n'
+	header += '[](#live_end)'
 	return header
 
 def set_sidebar(table, header):
@@ -89,9 +50,9 @@ def set_sidebar(table, header):
 	r.update_settings(r.get_subreddit(subreddit), description = new_sidebar)
 
 def main():
-	html = get_html('http://www.giantbomb.com')
-	table = create_table(html)
-	header = create_header(html)
+	data = get_json()
+	table = create_table(data)
+	header = create_header(data)
 	set_sidebar(table, header)
 
 if __name__ == '__main__':
