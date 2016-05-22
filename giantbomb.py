@@ -13,7 +13,7 @@ def get_json():
 
 def create_table(data):
 	table = '[](#calendar_start)\n'
-	if data['upcoming'] != None:
+	if len(data['upcoming']) != 0:
 		table += '>###Calendar\n'
 		table += 'Title | Time (PST)\n'
 		table += ':-- |:--\n'
@@ -56,4 +56,4 @@ def main():
 	set_sidebar(table, header)
 
 if __name__ == '__main__':
-    main()
+	main()
