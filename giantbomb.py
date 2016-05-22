@@ -13,8 +13,8 @@ def get_json():
 
 def create_table(data):
 	table = '[](#calendar_start)\n'
+	table += '>###Calendar\n'
 	if len(data['upcoming']) != 0:
-		table += '>###Calendar\n'
 		table += 'Title | Time (PST)\n'
 		table += ':-- |:--\n'
 		for item in data['upcoming']:
