@@ -1,8 +1,7 @@
 import praw, urllib2, json
-from prawoauth2 import PrawOAuth2Mini
-from settings import app_key, app_secret, access_token, refresh_token, subreddit, user_agent
+from settings import *
 
-VERSION = '3.0.0'
+VERSION = '3.1.0'
 
 def get_json():
 	opener = urllib2.build_opener()
@@ -36,18 +35,15 @@ def create_header(data):
 
 def set_sidebar(table, header):
 	user_agent_version = user_agent.replace('*', VERSION)
-	r = praw.Reddit(user_agent = user_agent_version)
-	o = PrawOAuth2Mini(r, app_key = app_key, app_secret = app_secret, access_token = access_token, scopes = ['identity', 'modconfig'], refresh_token = refresh_token)
-	o.refresh()
-	settings = r.get_settings(subreddit)
-	sidebar_contents = settings['description']
+	r = praw.Reddit(client_id = app_key, client_secret = app_secret, password = password, user_agent = user_agent_version, username = username)
+	sidebar_contents = r.subreddit(subreddit_name).description
 	start = sidebar_contents.split('[](#calendar_start)', 1)[0]
 	end = sidebar_contents.split('[](#calendar_end)', 1)[1]
 	new_sidebar = start + table + end
 	start = new_sidebar.split('[](#live_start)', 1)[0]
 	end = new_sidebar.split('[](#live_end)', 1)[1]
 	new_sidebar = start + header + end
-	r.update_settings(r.get_subreddit(subreddit), description = new_sidebar)
+	r.subreddit(subreddit_name).mod.update(description = new_sidebar, spoilers_enabled = True)
 
 def main():
 	data = get_json()
