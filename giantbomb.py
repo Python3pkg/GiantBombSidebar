@@ -3,7 +3,7 @@ import praw, urllib2, json, yaml
 VERSION = '3.2.0'
 
 def get_config():
-	with open("config.yaml", 'r') as file:
+	with open('config.yaml', 'r') as file:
 		config = yaml.load(file)
 	return config
 
