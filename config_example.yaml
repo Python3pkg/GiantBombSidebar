@@ -1,0 +1,6 @@
+app_name: APPNAME
+app_key: APPKEY
+app_secret: APPSECRET
+subreddit: SUBREDDIT
+username: USERNAME
+password: PASSWORD

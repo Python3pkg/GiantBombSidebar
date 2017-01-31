@@ -1,7 +1,12 @@
-import praw, urllib2, json
+import praw, urllib2, json, yaml
 from settings import *
 
 VERSION = '3.1.0'
+
+def get_config():
+	with open("config.yaml", 'r') as file:
+		config = yaml.load(file)
+	return config
 
 def get_json():
 	opener = urllib2.build_opener()
@@ -33,23 +38,24 @@ def create_header(data):
 	header += '[](#live_end)'
 	return header
 
-def set_sidebar(table, header):
-	user_agent_version = user_agent.replace('*', VERSION)
-	r = praw.Reddit(client_id = app_key, client_secret = app_secret, password = password, user_agent = user_agent_version, username = username)
-	sidebar_contents = r.subreddit(subreddit_name).description
+def set_sidebar(table, header, config):
+	user_agent = 'python:' + config['app_name'] + ':' + VERSION + ' (by /u/' + config['username'] + ')'
+	reddit = praw.Reddit(client_id = config['app_key'], client_secret = config['app_secret'], password = config['password'], user_agent = user_agent, username = config['username'])
+	sidebar_contents = reddit.subreddit(config['subreddit']).description
 	start = sidebar_contents.split('[](#calendar_start)', 1)[0]
 	end = sidebar_contents.split('[](#calendar_end)', 1)[1]
 	new_sidebar = start + table + end
 	start = new_sidebar.split('[](#live_start)', 1)[0]
 	end = new_sidebar.split('[](#live_end)', 1)[1]
 	new_sidebar = start + header + end
-	r.subreddit(subreddit_name).mod.update(description = new_sidebar, spoilers_enabled = True)
+	reddit.subreddit(config['subreddit']).mod.update(description = new_sidebar, spoilers_enabled = True)
 
 def main():
+	config = get_config()
 	data = get_json()
 	table = create_table(data)
 	header = create_header(data)
-	set_sidebar(table, header)
+	set_sidebar(table, header, config)
 
 if __name__ == '__main__':
 	main()
