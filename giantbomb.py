@@ -1,7 +1,7 @@
 import praw, urllib2, json, yaml
 from settings import *
 
-VERSION = '3.1.0'
+VERSION = '3.2.0'
 
 def get_config():
 	with open("config.yaml", 'r') as file:
