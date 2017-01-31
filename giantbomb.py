@@ -1,5 +1,4 @@
 import praw, urllib2, json, yaml
-from settings import *
 
 VERSION = '3.2.0'
 
