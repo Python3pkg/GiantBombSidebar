@@ -2,5 +2,6 @@ app_name: APPNAME
 app_key: APPKEY
 app_secret: APPSECRET
 subreddit: SUBREDDIT
+wiki_page: WIKIPAGE
 username: USERNAME
 password: PASSWORD
