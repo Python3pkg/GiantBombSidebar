@@ -42,4 +42,4 @@ Note: I would recommend talking to somebody who works at Giant Bomb if you inten
     ```
 
 # License
-This  is licensed under the MIT license which is included.()
+This  is licensed under the MIT license which is included.
