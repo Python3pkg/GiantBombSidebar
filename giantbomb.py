@@ -1,4 +1,4 @@
-import praw, urllib2, json, yaml
+import praw, urllib.request, urllib.error, urllib.parse, json, yaml
 
 VERSION = '3.3.0'
 
@@ -8,7 +8,7 @@ def get_config():
 	return config
 
 def get_json():
-	opener = urllib2.build_opener()
+	opener = urllib.request.build_opener()
 	opener.addheaders = [('User-agent', 'Reddit Sidebar')]
 	response = opener.open('http://www.giantbomb.com/upcoming_json')
 	data = json.load(response)
